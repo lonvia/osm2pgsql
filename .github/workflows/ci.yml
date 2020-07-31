@@ -16,7 +16,6 @@ jobs:
 
       - name: configure and build
         uses: lukka/run-cmake@v2
-
         with:
           cmakeAppendedArgs: '-LA -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=11 -DWITH_LUA=ON'
           buildDirectory: '${{ github.workspace }}/build/'
