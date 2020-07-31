@@ -14,11 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: configure and build
-        uses: lukka/run-cmake@v2
-        with:
-          cmakeAppendedArgs: '-LA -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=11 -DWITH_LUA=ON'
-          buildDirectory: '${{ github.workspace }}/build/'
+      - name: configure
+        run: mkdir build && cd build && cmake -LA -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=11 -DWITH_LUA=ON' ..
+        shell: bash
+
+      - name: build
+        run: cd build && make
+        shell: bash
 
       - name: test
         run: cd build && ctest --output-on-failure
