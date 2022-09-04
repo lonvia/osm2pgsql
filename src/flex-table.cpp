@@ -155,10 +155,12 @@ std::string flex_table_t::build_sql_create_id_index() const
 
 void table_connection_t::connect(std::string const &conninfo)
 {
+/*
     assert(!m_db_connection);
 
     m_db_connection = std::make_unique<pg_conn_t>(conninfo);
     m_db_connection->exec("SET synchronous_commit = off");
+*/
 }
 
 static void
@@ -187,6 +189,7 @@ enable_check_trigger(pg_conn_t *db_connection, flex_table_t const &table)
 
 void table_connection_t::start(bool append)
 {
+/*
     assert(m_db_connection);
 
     m_db_connection->exec("SET client_min_messages = WARNING");
@@ -211,10 +214,12 @@ void table_connection_t::start(bool append)
     }
 
     prepare();
+*/
 }
 
 void table_connection_t::stop(bool updateable, bool append)
 {
+/*
     assert(m_db_connection);
 
     m_copy_mgr.sync();
@@ -296,6 +301,7 @@ void table_connection_t::stop(bool updateable, bool append)
     analyze();
 
     teardown();
+*/
 }
 
 void table_connection_t::prepare()

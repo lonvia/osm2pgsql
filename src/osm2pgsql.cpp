@@ -68,12 +68,13 @@ static void run(options_t const &options)
     // populating some of the tables.
     process_files(files, &osmdata, options.append,
                   get_logger().show_progress());
-
+/*
     show_memory_usage();
 
     // Process pending ways and relations. Cluster database tables and
     // create indexes.
     osmdata.stop();
+*/
 }
 
 int main(int argc, char *argv[])
@@ -85,16 +86,17 @@ int main(int argc, char *argv[])
         if (options.early_return()) {
             return 0;
         }
-
+/*
         util::timer_t timer_overall;
 
         check_db(options);
-
+*/
         run(options);
-
+/*
         show_memory_usage();
         log_info("osm2pgsql took {} overall.",
                  util::human_readable_duration(timer_overall.stop()));
+*/
     } catch (std::exception const &e) {
         log_error("{}", e.what());
         return 1;

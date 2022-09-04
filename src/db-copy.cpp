@@ -125,6 +125,7 @@ db_copy_thread_t::thread_t::thread_t(std::string conninfo, shared *shared)
 
 void db_copy_thread_t::thread_t::operator()()
 {
+/*
     try {
         m_conn = std::make_unique<pg_conn_t>(m_conninfo);
 
@@ -169,6 +170,7 @@ void db_copy_thread_t::thread_t::operator()()
         log_error("DB copy thread failed: {}", e.what());
         exit(2);
     }
+*/
 }
 
 void db_copy_thread_t::thread_t::write_to_db(db_cmd_copy_t *buffer)

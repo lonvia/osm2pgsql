@@ -55,10 +55,12 @@ table_t::table_t(table_t const &other,
     // if the other table has already started, then we want to execute
     // the same stuff to get into the same state. but if it hasn't, then
     // this would be premature.
+/*
     if (other.m_sql_conn) {
         connect();
         prepare();
     }
+*/
 }
 
 void table_t::teardown() { m_sql_conn.reset(); }
@@ -74,6 +76,7 @@ void table_t::connect()
 
 void table_t::start(std::string const &conninfo, std::string const &table_space)
 {
+/*
     if (m_sql_conn) {
         throw std::runtime_error{m_target->name +
                                  " cannot start, its already started."};
@@ -139,6 +142,7 @@ void table_t::start(std::string const &conninfo, std::string const &table_space)
     }
 
     prepare();
+*/
 }
 
 void table_t::prepare()
@@ -179,6 +183,7 @@ void table_t::generate_copy_column_list()
 void table_t::stop(bool updateable, bool enable_hstore_index,
                    std::string const &table_space_index)
 {
+/*
     // make sure that all data is written to the DB before continuing
     m_copy.sync();
 
@@ -235,7 +240,7 @@ void table_t::stop(bool updateable, bool enable_hstore_index,
             qual_name, (updateable ? "" : "WITH (fillfactor = 100)"),
             tablespace_clause(table_space_index)));
 
-        /* slim mode needs this to be able to apply diffs */
+        // slim mode needs this to be able to apply diffs
         if (updateable) {
             log_info("Creating osm_id index on table '{}'...", m_target->name);
             m_sql_conn->exec(
@@ -248,7 +253,7 @@ void table_t::stop(bool updateable, bool enable_hstore_index,
             }
         }
 
-        /* Create hstore index if selected */
+        // Create hstore index if selected
         if (enable_hstore_index) {
             log_info("Creating hstore indexes on table '{}'...",
                      m_target->name);
@@ -268,6 +273,7 @@ void table_t::stop(bool updateable, bool enable_hstore_index,
         analyze_table(*m_sql_conn, m_target->schema, m_target->name);
     }
     teardown();
+*/
 }
 
 void table_t::delete_row(osmid_t const id)
