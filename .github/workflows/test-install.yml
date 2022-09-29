@@ -5,6 +5,7 @@ on: [ push, pull_request ]
 jobs:
   ubuntu-test-install:
     runs-on: ubuntu-20.04
+    if: False
 
     env:
       LUA_VERSION: 5.3

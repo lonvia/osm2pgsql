@@ -5,6 +5,7 @@ on: [ push, pull_request ]
 jobs:
   macos:
     runs-on: macos-latest
+    if: False
 
     env:
       LUA_VERSION: 5.4
@@ -42,6 +43,7 @@ jobs:
 
   ubuntu18-pg95-gcc7-jit:
     runs-on: ubuntu-18.04
+    if: False
 
     env:
       CC: gcc-7
@@ -59,6 +61,7 @@ jobs:
 
   ubuntu18-pg96-clang8-jit:
     runs-on: ubuntu-18.04
+    if: False
 
     env:
       CC: clang-8
@@ -76,6 +79,7 @@ jobs:
 
   ubuntu18-pg10-gcc9:
     runs-on: ubuntu-18.04
+    if: False
 
     env:
       CC: gcc-9
@@ -95,6 +99,7 @@ jobs:
 
   ubuntu18-pg11-clang9:
     runs-on: ubuntu-18.04
+    if: False
 
     env:
       CC: clang-9
@@ -113,6 +118,7 @@ jobs:
 
   ubuntu20-pg12-gcc10-jit:
     runs-on: ubuntu-20.04
+    if: False
 
     env:
       CC: gcc-10
@@ -132,6 +138,7 @@ jobs:
 
   ubuntu20-pg13-clang10-jit:
     runs-on: ubuntu-20.04
+    if: False
 
     env:
       CC: clang-10
@@ -150,6 +157,7 @@ jobs:
 
   ubuntu20-pg13-clang10-proj6:
     runs-on: ubuntu-20.04
+    if: False
 
     env:
       CC: clang-10
@@ -169,6 +177,7 @@ jobs:
 
   ubuntu20-pg13-clang10-noproj:
     runs-on: ubuntu-20.04
+    if: False
 
     env:
       CC: clang-10
@@ -188,6 +197,7 @@ jobs:
 
   ubuntu20-pg13-clang10-cpp17:
     runs-on: ubuntu-20.04
+    if: False
 
     env:
       CC: clang-10
@@ -207,6 +217,7 @@ jobs:
 
   ubuntu20-pg13-gcc10-release:
     runs-on: ubuntu-20.04
+    if: False
 
     env:
       CC: gcc-10
@@ -225,6 +236,7 @@ jobs:
 
   ubuntu20-pg13-gcc10-release-nolua:
     runs-on: ubuntu-20.04
+    if: False
 
     env:
       CC: gcc-10
@@ -243,7 +255,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2019, windows-2022]
+        os: [windows-2022]
     runs-on: ${{ matrix.os }}
 
     env:
@@ -253,43 +265,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/cache@v2
-        with:
-          path: |
-            C:/vcpkg_binary_cache
-          key: vcpkg-binary-cache-${{ matrix.os }}
-      - uses: actions/cache@v2
-        with:
-          path: |
-            C:/postgis.zip
-          key: postgis-cache
-      - name: Prepare cache
-        run: if [ ! -d C:/vcpkg_binary_cache ]; then mkdir C:/vcpkg_binary_cache; fi
-        shell: bash
-      - uses: ./.github/actions/win-postgres
-      - uses: ./.github/actions/win-install
-      - uses: ./.github/actions/win-getopt
-      - uses: ./.github/actions/win-cmake
-      - uses: ./.github/actions/win-build
-      - uses: ./.github/actions/win-test
-      - name: Package osm2pgsql
+      - name: Download osm2pgsql
+        run: (new-object net.webclient).DownloadFile("https://osm2pgsql.org/download/windows/osm2pgsql-latest-x64.zip", "osm2pgsql.zip")
+      - name: Prepare
         run: |
-          mkdir c:/artifact/
-          mkdir c:/artifact/osm2pgsql-bin
-          cp -r Release/* ../README.md ../COPYING ../*.style ../scripts ../flex-config c:/artifact/osm2pgsql-bin/
-        shell: bash
-        working-directory: build
-        if: matrix.os == 'windows-2022'
-      - name: 'Upload Artifact'
-        uses: actions/upload-artifact@v2
-        with:
-          name: osm2pgsql-win64
-          path: c:/artifact
-        if: matrix.os == 'windows-2022'
+          unzip osm2pgsql.zip
+          mv osm2pgsql-bin build
+      - uses: ./.github/actions/win-test
 
   windows-package:
     needs: windows
     runs-on: windows-2022
+    if: False
 
     env:
       OSMURL: https://download.geofabrik.de/europe/monaco-latest.osm.bz2
