@@ -276,7 +276,7 @@ jobs:
           unzip osm2pgsql.zip
           mv osm2pgsql-bin build
       - name: Run behave
-        run: behave
+        run: behave flex/geometry-multipoint.feature
         shell: bash
         working-directory: tests/bdd/
 
