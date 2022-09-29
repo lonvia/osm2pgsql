@@ -265,6 +265,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Install psycopg2 and behave
+        run: python -m pip install psycopg2 behave
+        shell: bash
       - name: Download osm2pgsql
         run: (new-object net.webclient).DownloadFile("https://osm2pgsql.org/download/windows/osm2pgsql-latest-x64.zip", "osm2pgsql.zip")
       - name: Prepare
@@ -291,9 +294,6 @@ jobs:
           path: |
             C:/postgis.zip
           key: postgis-cache
-      - name: Install psycopg2 and beahve
-        run: python -m pip install psycopg2 behave
-        shell: bash
       - uses: actions/download-artifact@v2
         with:
           name: osm2pgsql-win64
