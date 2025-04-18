@@ -30,6 +30,26 @@ void check_tablespace(std::string const &tablespace)
     }
 }
 
+uint8_t check_update_action(std::string const &action, char const *option)
+{
+    if (action == "") {
+        return action_none;
+    }
+    if (action == "delete") {
+        return action_delete;
+    }
+    if (action == "modify") {
+        return action_modify;
+    }
+    if (action == "delete,modify" || action == "modify,delete") {
+        return action_delete | action_modify;
+    }
+
+    throw fmt_error("Unknown value '{}' for '{}' table option"
+                    " (use comma-separated list of: delete, modify)",
+                    action, option);
+}
+
 flex_table_t &create_flex_table(lua_State *lua_state,
                                 std::string const &default_schema,
                                 std::vector<flex_table_t> *tables)
@@ -97,6 +117,14 @@ flex_table_t &create_flex_table(lua_State *lua_state,
         check_identifier(tablespace, "index_tablespace field");
         check_tablespace(tablespace);
         new_table.set_index_tablespace(tablespace);
+    }
+    lua_pop(lua_state, 1);
+
+    // optional "auto_delete" field
+    lua_getfield(lua_state, -1, "auto_delete");
+    if (lua_isstring(lua_state, -1)) {
+        std::string const action = lua_tostring(lua_state, -1);
+        new_table.set_auto_delete(check_update_action(action, "auto_delete"));
     }
     lua_pop(lua_state, 1);
 

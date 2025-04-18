@@ -894,7 +894,7 @@ void output_flex_t::pending_way(osmid_t id)
         return;
     }
 
-    way_delete(id);
+    delete_from_tables(osmium::item_type::way, id, action_modify);
 
     get_mutex_and_call_lua_function(m_process_way, m_way_cache.get());
 }
@@ -1002,7 +1002,7 @@ void output_flex_t::pending_relation(osmid_t id)
     }
 
     select_relation_members();
-    delete_from_tables(osmium::item_type::relation, id);
+    delete_from_tables(osmium::item_type::relation, id, action_modify);
 
     if (m_process_relation) {
         get_mutex_and_call_lua_function(m_process_relation,
@@ -1177,10 +1177,10 @@ void output_flex_t::delete_from_table(table_connection_t *table_connection,
     table_connection->delete_rows_with(type, id);
 }
 
-void output_flex_t::delete_from_tables(osmium::item_type type, osmid_t osm_id)
+void output_flex_t::delete_from_tables(osmium::item_type type, osmid_t osm_id, flex_table_action_flags action)
 {
     for (auto &table : m_table_connections) {
-        if (table.table().matches_type(type) && table.table().has_id_column()) {
+        if (table.table().can_delete_type(type, action)) {
             delete_from_table(&table, m_db_connection, type, osm_id);
         }
     }
@@ -1191,35 +1191,36 @@ void output_flex_t::delete_from_tables(osmium::item_type type, osmid_t osm_id)
  * contain the change for that also. */
 void output_flex_t::node_delete(osmid_t osm_id)
 {
-    delete_from_tables(osmium::item_type::node, osm_id);
+    delete_from_tables(osmium::item_type::node, osm_id, action_delete);
 }
 
 void output_flex_t::way_delete(osmid_t osm_id)
 {
-    delete_from_tables(osmium::item_type::way, osm_id);
+    delete_from_tables(osmium::item_type::way, osm_id, action_delete);
 }
 
 void output_flex_t::relation_delete(osmid_t osm_id)
 {
     select_relation_members(osm_id);
-    delete_from_tables(osmium::item_type::relation, osm_id);
+    delete_from_tables(osmium::item_type::relation, osm_id, action_delete);
 }
 
 void output_flex_t::node_modify(osmium::Node const &node)
 {
-    node_delete(node.id());
+    delete_from_tables(osmium::item_type::node, node.id(), action_modify);
     node_add(node);
 }
 
 void output_flex_t::way_modify(osmium::Way *way)
 {
-    way_delete(way->id());
+    delete_from_tables(osmium::item_type::way, way->id(), action_modify);
     way_add(way);
 }
 
 void output_flex_t::relation_modify(osmium::Relation const &rel)
 {
-    relation_delete(rel.id());
+    select_relation_members(rel.id());
+    delete_from_tables(osmium::item_type::relation, rel.id(), action_modify);
     relation_add(rel);
 }
 
@@ -1570,7 +1571,7 @@ void output_flex_t::reprocess_marked()
 
         for (osmid_t const id : *m_stage2_node_ids) {
             if (middle().node_get(id, &node_buffer)) {
-                node_delete(id);
+                delete_from_tables(osmium::item_type::node, id, action_modify);
                 if (m_process_node) {
                     auto const &node = node_buffer.get<osmium::Node>(0);
                     m_context_node = &node;
@@ -1590,7 +1591,7 @@ void output_flex_t::reprocess_marked()
         if (!m_way_cache.init(middle(), id)) {
             continue;
         }
-        way_delete(id);
+        delete_from_tables(osmium::item_type::way, id, action_modify);
         if (m_process_way) {
             get_mutex_and_call_lua_function(m_process_way, m_way_cache.get());
         }

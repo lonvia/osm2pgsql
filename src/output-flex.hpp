@@ -216,7 +216,7 @@ private:
                            pg_conn_t const &db_connection,
                            osmium::item_type type, osmid_t osm_id);
 
-    void delete_from_tables(osmium::item_type type, osmid_t osm_id);
+    void delete_from_tables(osmium::item_type type, osmid_t osm_id, flex_table_action_flags action);
 
     lua_State *lua_state() noexcept { return m_lua_state.get(); }
 

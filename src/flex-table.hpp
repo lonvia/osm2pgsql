@@ -47,6 +47,16 @@ enum class flex_table_index_type : uint8_t {
 };
 
 /**
+ * Possible actions on objects.
+ */
+enum flex_table_action_flags : uint8_t {
+    action_none = 0,
+    action_add = 1, // object is being imported
+    action_modify = 2, // object is added or modified during updates
+    action_delete = 4 // object is deleted during updates
+};
+
+/**
  * An output table (in the SQL sense) for the flex backend.
  */
 class flex_table_t
@@ -110,6 +120,11 @@ public:
     flex_table_index_type id_type() const noexcept { return m_id_type; }
 
     void set_id_type(flex_table_index_type type) noexcept { m_id_type = type; }
+
+    void set_auto_delete(uint8_t actions) noexcept
+    {
+        m_auto_delete = actions;
+    }
 
     bool has_id_column() const noexcept;
 
@@ -175,6 +190,11 @@ public:
     bool has_multiple_geom_columns() const noexcept
     {
         return m_has_multiple_geom_columns;
+    }
+
+    bool can_delete_type(osmium::item_type type, flex_table_action_flags action) const noexcept
+    {
+        return matches_type(type) && has_id_column() && (action & m_auto_delete);
     }
 
     std::vector<flex_index_t> const &indexes() const noexcept
@@ -268,6 +288,9 @@ private:
 
     /// Index should be a primary key.
     bool m_primary_key_index = false;
+
+    /// For which actions should an object be deleted from the table.
+    uint8_t m_auto_delete = action_modify | action_delete;
 
 }; // class flex_table_t
 
